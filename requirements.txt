@@ -3,3 +3,4 @@ opencv-python
 python-dotenv
 gradio
 opencv-python-headless
+pytest-shutil
