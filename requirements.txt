@@ -1,3 +1,5 @@
 openai
 opencv-python
 python-dotenv
+gradio
+opencv-python-headless
