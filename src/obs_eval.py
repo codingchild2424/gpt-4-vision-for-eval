@@ -44,11 +44,20 @@ def main(config):
 
     # Skipping the display part as it's not relevant in a .py script
 
+    INSTRUCTOIN = " ".join(
+        "These are frames of a video.",
+        "Create a short voiceover script in the style of a super excited brazilian sports narrator who is narrating his favorite match.",
+        "He is a big fan of Messi, the player who scores in this clip.",
+        "Use caps and exclamation marks where needed to communicate excitement.",
+        "Only include the narration, your output must be in english.",
+        "When the ball goes into the net, you must scream GOL either once or multiple times."
+    )
+
     PROMPT_MESSAGES = [
         {
             "role": "user",
             "content": [
-                "These are frames of a video. Create a short voiceover script in the style of a super excited brazilian sports narrator who is narrating his favorite match. He is a big fan of Messi, the player who scores in this clip. Use caps and exclamation marks where needed to communicate excitement. Only include the narration, your output must be in english. When the ball goes into the net, you must scream GOL either once or multiple times.",
+                INSTRUCTOIN,
                 *map(lambda x: {"image": x, "resize": 768}, base64Frames[0::10]),
             ],
         },
