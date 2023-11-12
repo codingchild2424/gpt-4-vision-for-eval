@@ -45,7 +45,7 @@ def main():
         gr.Markdown("## GPT-4 Vision for Evaluation")
         with gr.Row():
             with gr.Column(scale=1):
-                api_key_input = gr.Textbox(label="Enter your OpenAI API Key which is allowed to use GPT-4 Vision)", lines=1)
+                api_key_input = gr.Textbox(label="Enter your OpenAI API Key (Your API Key must be allowed to use GPT-4 Vision)", lines=1)
                 instruction_input = gr.Textbox(label="Enter Your Prompt", placeholder="Enter your prompt here...", lines=5)
                 video_upload = gr.File(label="Upload your video", type="file")
                 submit_button = gr.Button("Summit")
