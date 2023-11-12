@@ -13,6 +13,8 @@ config = dotenv_values("/workspace/Research/PangyoPangyo/src/.env")
 openai.organization = config.get('OPENAI_ORGANIZATION')
 openai.api_key = config.get('OPENAI_API_KEY')
 
+### Define the argument parser
+
 def define_argparser():
     p = argparse.ArgumentParser()
 
