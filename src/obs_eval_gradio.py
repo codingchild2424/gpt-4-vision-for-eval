@@ -45,12 +45,12 @@ def main():
         gr.Markdown("## GPT-4 Vision for Evaluation")
         with gr.Row():
             with gr.Column(scale=1):
-                api_key_input = gr.Textbox(label="Enter your OpenAI API Key", lines=1)
-                instruction_input = gr.Textbox(label="Enter Narration Instruction", placeholder="Enter your custom instruction here...", lines=5)
+                api_key_input = gr.Textbox(label="Enter your OpenAI API Key which is allowed to use GPT-4 Vision)", lines=1)
+                instruction_input = gr.Textbox(label="Enter Your Prompt", placeholder="Enter your prompt here...", lines=5)
                 video_upload = gr.File(label="Upload your video", type="file")
-                submit_button = gr.Button("Generate Script")
+                submit_button = gr.Button("Summit")
             with gr.Column(scale=1):
-                output_box = gr.Textbox(label="Generated Script", lines=7, interactive=False)
+                output_box = gr.Textbox(label="Generated Response", lines=7, interactive=False)
 
         submit_button.click(fn=process_video, inputs=[video_upload, api_key_input, instruction_input], outputs=output_box)
 
