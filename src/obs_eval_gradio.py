@@ -42,7 +42,7 @@ def process_video(video_file, api_key, instruction):
 # Define the Gradio app
 def main():
     with gr.Blocks() as app:
-        gr.Markdown("## Video Narration Generator")
+        gr.Markdown("## GPT-4 Vision for Evaluation")
         with gr.Row():
             with gr.Column(scale=1):
                 api_key_input = gr.Textbox(label="Enter your OpenAI API Key", lines=1)
