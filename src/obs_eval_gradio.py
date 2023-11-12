@@ -47,7 +47,7 @@ def main():
             with gr.Column(scale=1):
                 api_key_input = gr.Textbox(label="Enter your OpenAI API Key (Your API Key must be allowed to use GPT-4 Vision)", lines=1)
                 instruction_input = gr.Textbox(label="Enter Your Prompt", placeholder="Enter your prompt here...", lines=5)
-                video_upload = gr.File(label="Upload your video", type="file")
+                video_upload = gr.File(label="Upload your video (under 10 second video is the best..!)", type="file")
                 submit_button = gr.Button("Summit")
             with gr.Column(scale=1):
                 output_box = gr.Textbox(label="Generated Response", lines=7, interactive=False)
