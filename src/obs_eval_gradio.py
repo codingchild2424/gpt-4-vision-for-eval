@@ -49,7 +49,7 @@ def validate_api_key(api_key):
 
 def _process_video(image_file):
     # Read and process the video file
-    video = cv2.VideoCapture(image_file)
+    video = cv2.VideoCapture(image_file.name)
 
     base64Frames = []
     while video.isOpened():
@@ -59,8 +59,8 @@ def _process_video(image_file):
         _, buffer = cv2.imencode(".jpg", frame)
         base64Frames.append(base64.b64encode(buffer).decode("utf-8"))
     video.release()
-    if len(base64Frames) > 400:
-        raise gr.Warning(f"Video's play time is too long. (>10s)")
+    if len(base64Frames) > 700:
+        raise gr.Warning(f"Video's play time is too long. (>20s)")
     print(len(base64Frames), "frames read.")
 
     if not base64Frames:
@@ -225,7 +225,10 @@ def main():
                     placeholder="sk-*********...",
                     lines=1
                 )
-                video_upload = gr.File(label="Upload your video (under 10 second video is the best..!)")
+                video_upload = gr.File(
+                    label="Upload your video (under 10 second video is the best..!)",
+                    file_types=["video"],
+                )
                 # batch_size = gr.Number(
                 #     label="Number of images in one batch",
                 #     value=2,
@@ -234,9 +237,9 @@ def main():
                 # )
                 total_batch_percent = gr.Number(
                     label="Percentage(%) of batched image frames to total frames",
-                    value=10,
-                    minimum=10,
-                    maximum=40,
+                    value=5,
+                    minimum=5,
+                    maximum=20,
                     step=5
                 )
                 process_button = gr.Button("Process")
