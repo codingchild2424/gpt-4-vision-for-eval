@@ -94,7 +94,11 @@ def _make_video_batch(image_file, batch_size, total_batch_percent):
         # assert len(batch) <= BATCH_SIZE
         print(f'##{idx} - batch_size: {len(batch)}')
 
-    global_dict.setdefault('batched_frames', base64FramesBatch)
+    if 'batched_frames' not in global_dict:
+        global_dict.setdefault('batched_frames', base64FramesBatch)
+    else:
+        global_dict['batched_frames'] = base64FramesBatch
+
     return base64FramesBatch
 
 
@@ -118,13 +122,15 @@ def show_batches(image_file, batch_size, total_batch_percent):
     return images
 
 
-def call_gpt_vision(api_key, instruction):
+def call_gpt_vision(api_key, instruction, progress=gr.Progress()):
     frames = global_dict.get('batched_frames')
     openai.api_key = api_key
 
     full_result = []
+    full_text = ""
+    idx = 0
 
-    for idx, batch in enumerate(frames):
+    for batch in progress.tqdm(frames):
         PROMPT_MESSAGES = [
             {
                 "role": "system",
@@ -151,7 +157,9 @@ def call_gpt_vision(api_key, instruction):
             full_result.append(result)
         except Exception as e:
             print(f"Error: {e}")
-            yield f'### BATCH_{idx+1}\n' + "-"*50 + "\n" + f"Error: {e}" +  "\n" + "-"*50
+            full_text += f'### BATCH_{idx+1}\n' + "-"*50 + "\n" + f"Error: {e}" +  "\n" + "-"*50 + "\n"
+            idx += 1
+            pass
         
         if 'full_result' not in global_dict:
             global_dict.setdefault('full_result', full_result)
@@ -160,9 +168,11 @@ def call_gpt_vision(api_key, instruction):
         
         print(f'### BATCH_{idx+1}')
         print('-'*100)
+        full_text += f'### BATCH_{idx+1}\n' + "-"*50 + "\n" + result.choices[0].message.content +  "\n" + "-"*50 + "\n"
+        idx += 1
         time.sleep(2)
 
-        yield f'### BATCH_{idx+1}\n' + "-"*50 + "\n" + result.choices[0].message.content +  "\n" + "-"*50
+    return full_text
 
 
 def get_full_result():
@@ -231,12 +241,14 @@ def main():
                 )
                 batch_size = gr.Number(
                     label="Number of images in one batch",
-                    value=2,
+                    info="(2<=N<=5)"
+                    value=5,
                     minimum=2,
                     maximum=5
                 )
                 total_batch_percent = gr.Number(
                     label="Percentage(%) of batched image frames to total frames",
+                    info="(5<=P<=20)"
                     value=5,
                     minimum=5,
                     maximum=20,
