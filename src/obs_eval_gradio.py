@@ -241,14 +241,14 @@ def main():
                 )
                 batch_size = gr.Number(
                     label="Number of images in one batch",
-                    info="(2<=N<=5)"
+                    info="(2<=N<=5)",
                     value=5,
                     minimum=2,
                     maximum=5
                 )
                 total_batch_percent = gr.Number(
                     label="Percentage(%) of batched image frames to total frames",
-                    info="(5<=P<=20)"
+                    info="(5<=P<=20)",
                     value=5,
                     minimum=5,
                     maximum=20,
