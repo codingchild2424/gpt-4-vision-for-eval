@@ -68,12 +68,12 @@ def _process_video(image_file):
     return base64Frames
 
 
-def _make_video_batch(image_file, total_batch_percent):
+def _make_video_batch(image_file, batch_size, total_batch_percent):
 
     frames = _process_video(image_file)
 
     TOTAL_FRAME_COUNT = len(frames)
-    BATCH_SIZE = 5
+    BATCH_SIZE = int(batch_size)
     TOTAL_BATCH_SIZE = int(TOTAL_FRAME_COUNT * total_batch_percent / 100)
     BATCH_STEP = int(TOTAL_FRAME_COUNT / TOTAL_BATCH_SIZE)
     
@@ -98,9 +98,9 @@ def _make_video_batch(image_file, total_batch_percent):
     return base64FramesBatch
 
 
-def show_batches(image_file, total_batch_size):
+def show_batches(image_file, batch_size, total_batch_percent):
     
-    batched_frames = _make_video_batch(image_file, total_batch_size)
+    batched_frames = _make_video_batch(image_file, batch_size, total_batch_percent)
     
     images = []
     for i, l in enumerate(batched_frames):
@@ -151,7 +151,7 @@ def call_gpt_vision(api_key, instruction):
             full_result.append(result)
         except Exception as e:
             print(f"Error: {e}")
-            pass
+            yield f'### BATCH_{idx+1}\n' + "-"*50 + "\n" + f"Error: {e}" +  "\n" + "-"*50
         
         if 'full_result' not in global_dict:
             global_dict.setdefault('full_result', full_result)
@@ -229,12 +229,12 @@ def main():
                     label="Upload your video (under 10 second video is the best..!)",
                     file_types=["video"],
                 )
-                # batch_size = gr.Number(
-                #     label="Number of images in one batch",
-                #     value=2,
-                #     minimum=2,
-                #     maximum=5
-                # )
+                batch_size = gr.Number(
+                    label="Number of images in one batch",
+                    value=2,
+                    minimum=2,
+                    maximum=5
+                )
                 total_batch_percent = gr.Number(
                     label="Percentage(%) of batched image frames to total frames",
                     value=5,
@@ -282,7 +282,7 @@ def main():
                 output_box_fin_fin = gr.Textbox(label="FINAL EVALUATION", lines=10, interactive=True)
 
 
-        process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, total_batch_percent], outputs=gallery)
+        process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery)
         submit_button.click(fn=call_gpt_vision, inputs=[api_key_input, instruction_input], outputs=output_box).then(get_full_result, None, output_box_fin)
         submit_button_2.click(fn=get_final_anser, inputs=[api_key_input, output_box_fin], outputs=output_box_fin_fin)
 
