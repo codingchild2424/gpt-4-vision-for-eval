@@ -260,7 +260,7 @@ def main():
                     info="Enter your evaluation criteria here...",
                     placeholder="<CRITERIA>\nThe correct way to do a forward roll is as follows:\n1. From standing, bend your knees and straighten your arms in front of you.\n2. Place your hands on the floor, shoulder width apart with fingers pointing forward and your chin on your chest.\n3. Rock forward, straighten legs and transfer body weight onto shoulders.\n4. Rock forward on a rounded back placing both feet on the floor.\n5. Stand using arms for balance, without hands touching the floor.",
                     lines=7)
-                submit_button = gr.Button("Submit")
+                submit_button = gr.Button("Evaluate")
 
             with gr.Column(scale=1):
                 output_box = gr.Textbox(
@@ -276,7 +276,7 @@ def main():
                     info="You can edit partial evaluation in here...",
                     lines=10,
                     interactive=True)
-                submit_button_2 = gr.Button("Submit")
+                submit_button_2 = gr.Button("Summarize")
 
             with gr.Column(scale=1):
                 output_box_fin_fin = gr.Textbox(label="FINAL EVALUATION", lines=10, interactive=True)
