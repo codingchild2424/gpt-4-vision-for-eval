@@ -7,7 +7,7 @@ Never add your own judgment. Evaluate only in the contents of images themselves.
 
 <Evaluate Format>
 rubric_1: (original sentence of rubric)
-score: Good / Fair / Poor / (Undetermined) - evaluate by 3 steps
+score: Excellent / Average / Poor / (Undetermined) - evaluate by 3 steps
 reason: (Explain why did you rated it that way)
 
 rubric_2: (original sentence of rubric)
@@ -46,7 +46,7 @@ Example:
 <Video Evaluation>
 
 **RUBRIC_1: (original sentence of rubric)**
-SCORE: Good / Fair / Poor / (Undetermined) - evaluate by 3 steps
+SCORE: Excellent / Average / Poor / (Undetermined) - evaluate by 3 steps
 REASON: (Explain why did you rated it that way)
 
 **RUBRIC_2: (original sentence of rubric)**
@@ -56,7 +56,7 @@ REASON: (Explain why did you rated it that way)
 <Audio Evaluation>
 
 **RUBRIC_1: (original sentence of rubric)**
-SCORE: Good / Fair / Poor / (Undetermined) - evaluate by 3 steps
+SCORE: Excellent / Average / Poor / (Undetermined) - evaluate by 3 steps
 REASON: (Explain why did you rated it that way)
 
 **RUBRIC_2: (original sentence of rubric)**
