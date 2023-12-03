@@ -10,6 +10,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.schema import StrOutputParser
 from PIL import Image
 
+
 global_dict = {}
 
 ######
@@ -55,9 +56,9 @@ def validate_api_key(api_key):
         raise gr.Error(f"OpenAI returned an API Error: {error}")
 
 
-def _process_video(image_file):
+def _process_video(video_file):
     # Read and process the video file
-    video = cv2.VideoCapture(image_file.name)
+    video = cv2.VideoCapture(video_file.name)
 
     base64Frames = []
     while video.isOpened():
@@ -75,10 +76,21 @@ def _process_video(image_file):
         raise gr.Error(f"Cannot open the video.")
     return base64Frames
 
+def _process_audio(video_file, api_key):
+    audio_file = open(video_file.name, "rb")
+    
+    client = openai.OpenAI(api_key=api_key)
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1", 
+        file=audio_file,
+        response_format="text"
+    )
+    return transcript
 
-def _make_video_batch(image_file, batch_size, total_batch_percent):
 
-    frames = _process_video(image_file)
+def _make_video_batch(video_file, batch_size, total_batch_percent):
+
+    frames = _process_video(video_file)
 
     TOTAL_FRAME_COUNT = len(frames)
     BATCH_SIZE = int(batch_size)
@@ -110,9 +122,9 @@ def _make_video_batch(image_file, batch_size, total_batch_percent):
     return base64FramesBatch
 
 
-def show_batches(image_file, batch_size, total_batch_percent):
+def show_batches(video_file, batch_size, total_batch_percent):
     
-    batched_frames = _make_video_batch(image_file, batch_size, total_batch_percent)
+    batched_frames = _make_video_batch(video_file, batch_size, total_batch_percent)
     
     images = []
     for i, l in enumerate(batched_frames):
@@ -128,6 +140,31 @@ def show_batches(image_file, batch_size, total_batch_percent):
         print("-"*100)
     
     return images
+
+
+def change_audio_rubric(choice):
+    if choice == "Video only":
+        return gr.Textbox(visible=False)
+    else:
+        return gr.Textbox(
+                    label="3. Audio Evaluation Rubric (if needed)",
+                    info="Enter your evaluation rubric here...",
+                    placeholder="<RUBRIC>\nHere's what the performer should *SAY* as follows:\n1. From standing, you need to shout 'Start' signal.\n2. Rock forward, you shouldn't make any noise while rolling.\n3. Standing still again, you need to shout 'Finish' signal.",
+                    lines=7,
+                    interactive=True,
+                    visible=True)
+
+
+def change_audio_eval(choice):
+    if choice == "Video only":
+        return gr.Textbox(visible=False)
+    else:
+        return gr.Textbox(
+                    label="Audio Script Eval...",
+                    lines=10,
+                    interactive=False,
+                    visible=True
+                )
 
 
 def call_gpt_vision(api_key, instruction, progress=gr.Progress()):
@@ -147,7 +184,7 @@ def call_gpt_vision(api_key, instruction, progress=gr.Progress()):
             {
                 "role": "user",
                 "content": [
-                    "Evaluate the behavior's actions based on the <CRITERIA> provided.\n\n" + instruction,
+                    "Evaluate the behavior's actions based on the <RUBRIC> provided.\n\n" + instruction,
                     *map(lambda x: {"image": x, "resize": 300}, batch),
                 ],
             },
@@ -234,7 +271,7 @@ def get_final_anser(api_key, result_text):
 def main():
     with gr.Blocks() as demo:
         gr.Markdown("# GPT-4 Vision for Evaluation")
-        gr.Markdown("## 1st STEP. Make Batched Snapshots")
+        gr.Markdown("## 1st STEP. Make Batched Snapshots & Audio Script")
         with gr.Row():
             with gr.Column(scale=1):
                 api_key_input = gr.Textbox(
@@ -247,47 +284,77 @@ def main():
                     label="Upload your video (under 1 minute video is the best..!)",
                     file_types=["video"],
                 )
-                batch_size = gr.Number(
+                batch_size = gr.Slider(
                     label="Number of images in one batch",
-                    info="(2<=N<=5)",
+                    info="Choose between 2 and 5",
                     value=5,
                     minimum=2,
-                    maximum=5
+                    maximum=5,
+                    step=1
                 )
-                total_batch_percent = gr.Number(
+                total_batch_percent = gr.Slider(
                     label="Percentage(%) of batched image frames to total frames",
-                    info="(5<=P<=20)",
+                    info="Choose between 5(%) and 20(%)",
                     value=5,
                     minimum=5,
                     maximum=20,
                     step=5
                 )
-                process_button = gr.Button("Process")
-            
+                process_button = gr.Button("Process")         
             with gr.Column(scale=1):
                 gallery = gr.Gallery(
                     label="Batched Snapshots of Video",
                     columns=[5],
-                    rows=[1],
                     object_fit="contain",
                     height="auto"
                 )
-        gr.Markdown("## 2nd STEP. Set Evaluation Criteria")
+                transcript_box = gr.Textbox(
+                    label="Audio Transcript",
+                    lines=8,
+                    interactive=False
+                )
+        
+        gr.Markdown("## 2nd STEP. Set Evaluation Rubric")
         with gr.Row():
             with gr.Column(scale=1):
-                instruction_input = gr.Textbox(
-                    label="Evaluation Criteria",
-                    info="Enter your evaluation criteria here...",
-                    placeholder="<CRITERIA>\nThe correct way to do a forward roll is as follows:\n1. From standing, bend your knees and straighten your arms in front of you.\n2. Place your hands on the floor, shoulder width apart with fingers pointing forward and your chin on your chest.\n3. Rock forward, straighten legs and transfer body weight onto shoulders.\n4. Rock forward on a rounded back placing both feet on the floor.\n5. Stand using arms for balance, without hands touching the floor.",
-                    lines=7)
-                submit_button = gr.Button("Evaluate")
+                multimodal_radio = gr.Radio(
+                    label="1. Multimodal Selection",
+                    info="Choose evaluation channel",
+                    value="Video + Audio",
+                    choices=["Video + Audio", "Video only"]
+                )
+                rubric_video_input = gr.Textbox(
+                    label="2. Video Evaluation Rubric",
+                    info="Enter your evaluation rubric here...",
+                    placeholder="<RUBRIC>\nHere's what the performer should *SHOW* as follows:\n1. From standing, bend your knees and straighten your arms in front of you.\n2. Place your hands on the floor, shoulder width apart with fingers pointing forward and your chin on your chest.\n3. Rock forward, straighten legs and transfer body weight onto shoulders.\n4. Rock forward on a rounded back placing both feet on the floor.\n5. Stand using arms for balance, without hands touching the floor.",
+                    lines=7
+                )
+                rubric_audio_input = gr.Textbox(
+                    label="3. Audio Evaluation Rubric (if needed)",
+                    info="Enter your evaluation rubric here...",
+                    placeholder="<RUBRIC>\nHere's what the performer should *SAY* as follows:\n1. From standing, you need to shout 'Start' signal.\n2. Rock forward, you shouldn't make any noise while rolling.\n3. Standing still again, you need to shout 'Finish' signal.",
+                    interactive=True,
+                    visible=True,
+                    lines=7
+                )
+                multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
 
+                submit_button = gr.Button("Evaluate")
             with gr.Column(scale=1):
-                output_box = gr.Textbox(
-                    label="Batched Generated Response...(Streaming)",
+                video_output_box = gr.Textbox(
+                    label="Video Batched Snapshots Eval...",
                     lines=10,
                     interactive=False
                 )
+                audio_output_box = gr.Textbox(
+                    label="Audio Script Eval...",
+                    lines=10,
+                    interactive=False,
+                    visible=True
+                )
+                multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
+
+
         gr.Markdown("## 3rd STEP. Summarize and Get Result")
         with gr.Row():
             with gr.Column(scale=1):
@@ -299,11 +366,11 @@ def main():
                 submit_button_2 = gr.Button("Summarize")
 
             with gr.Column(scale=1):
-                output_box_fin_fin = gr.Textbox(label="FINAL EVALUATION", lines=10, interactive=True)
+                output_box_fin_fin = gr.Textbox(label="Final Evaluation", lines=10, interactive=True)
 
 
-        process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery)
-        submit_button.click(fn=call_gpt_vision, inputs=[api_key_input, instruction_input], outputs=output_box).then(get_full_result, None, output_box_fin)
+        process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=_process_audio, inputs=[video_upload, api_key_input], outputs=transcript_box).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery)
+        submit_button.click(fn=call_gpt_vision, inputs=[api_key_input, rubric_video_input], outputs=video_output_box).then().then(get_full_result, None, output_box_fin)
         submit_button_2.click(fn=get_final_anser, inputs=[api_key_input, output_box_fin], outputs=output_box_fin_fin)
 
     demo.launch()
