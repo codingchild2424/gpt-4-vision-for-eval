@@ -394,8 +394,6 @@ def main():
                     visible=True,
                     lines=7
                 )
-                multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
-
                 evaluate_button = gr.Button("Evaluate")
             with gr.Column(scale=1):
                 video_output_box = gr.Textbox(
@@ -409,8 +407,6 @@ def main():
                     interactive=False,
                     visible=True
                 )
-                multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
-
 
         gr.Markdown("## 3rd STEP. Summarize and Get Result")
         with gr.Row():
@@ -427,6 +423,8 @@ def main():
             with gr.Column(scale=1):
                 output_box_fin_fin = gr.Textbox(label="Final Evaluation", lines=10, interactive=True)
 
+        multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
+        multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
 
         process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery).success(fn=show_audio_transcript, inputs=[video_upload, api_key_input], outputs=transcript_box)  
         if multimodal_radio.value == 'Video + Audio':
