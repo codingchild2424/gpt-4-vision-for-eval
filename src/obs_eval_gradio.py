@@ -426,12 +426,16 @@ def main():
                     info="You can edit partial evaluation in here...",
                     lines=10,
                     interactive=True,
-                    show_copy_button=True,
                 )
                 summarize_button = gr.Button("Summarize")
 
             with gr.Column(scale=1):
-                output_box_fin_fin = gr.Textbox(label="Final Evaluation", lines=10, interactive=True)
+                output_box_fin_fin = gr.Textbox(
+                    label="Final Evaluation",
+                    lines=10,
+                    interactive=True,
+                    show_copy_button=True,
+                )
 
         multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
         multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
