@@ -12,39 +12,47 @@ from PIL import Image
 
 global_dict = {}
 
+######
+# SETTINGS
+VIDEO_FRAME_LIMIT = 2000
 
-def failure():
-    raise gr.Error("This should fail!")
+######
+
 
 def validate_api_key(api_key):
     client = openai.OpenAI(api_key=api_key)
 
     try:
         # Make your OpenAI API request here
-        response = client.completions.create(
-            prompt="Hello world",
-            model="gpt-3.5-turbo-instruct"
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "user", "content": "Hello world"},
+            ]
         )
     except openai.RateLimitError as e:
         # Handle rate limit error (we recommend using exponential backoff)
         print(f"OpenAI API request exceeded rate limit: {e}")
         response = None
+        error = e
         pass
     except openai.APIConnectionError as e:
         # Handle connection error here
         print(f"Failed to connect to OpenAI API: {e}")
         response = None
+        error = e
         pass
     except openai.APIError as e:
         # Handle API error here, e.g. retry or log
         print(f"OpenAI API returned an API Error: {e}")
         response = None
+        error = e
         pass
 
     if response:
         return True
     else:
-        raise gr.Error(f"OpenAI API returned an API Error")
+        raise gr.Error(f"OpenAI returned an API Error: {error}")
 
 
 def _process_video(image_file):
@@ -59,8 +67,8 @@ def _process_video(image_file):
         _, buffer = cv2.imencode(".jpg", frame)
         base64Frames.append(base64.b64encode(buffer).decode("utf-8"))
     video.release()
-    if len(base64Frames) > 700:
-        raise gr.Warning(f"Video's play time is too long. (>20s)")
+    if len(base64Frames) > VIDEO_FRAME_LIMIT:
+        raise gr.Warning(f"Video's play time is too long. (>1m)")
     print(len(base64Frames), "frames read.")
 
     if not base64Frames:
@@ -236,7 +244,7 @@ def main():
                     lines=1
                 )
                 video_upload = gr.File(
-                    label="Upload your video (under 10 second video is the best..!)",
+                    label="Upload your video (under 1 minute video is the best..!)",
                     file_types=["video"],
                 )
                 batch_size = gr.Number(
