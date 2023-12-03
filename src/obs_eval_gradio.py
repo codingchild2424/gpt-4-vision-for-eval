@@ -387,13 +387,13 @@ def main():
                     choices=["Video + Audio", "Video only"]
                 )
                 rubric_video_input = gr.Textbox(
-                    label="Video Evaluation Rubric",
+                    label="2. Video Evaluation Rubric",
                     info="Enter your evaluation rubric here...",
                     placeholder="Here's what the performer should *SHOW* as follows:\n1. From standing, bend your knees and straighten your arms in front of you.\n2. Place your hands on the floor, shoulder width apart with fingers pointing forward and your chin on your chest.\n3. Rock forward, straighten legs and transfer body weight onto shoulders.\n4. Rock forward on a rounded back placing both feet on the floor.\n5. Stand using arms for balance, without hands touching the floor.",
                     lines=7
                 )
                 rubric_audio_input = gr.Textbox(
-                    label="Audio Evaluation Rubric (if needed)",
+                    label="3. Audio Evaluation Rubric (if needed)",
                     info="Enter your evaluation rubric here...",
                     placeholder="Here's what the performer should *SAY* as follows:\n1. From standing, you need to shout 'Start' signal.\n2. Rock forward, you shouldn't make any noise while rolling.\n3. Standing still again, you need to shout 'Finish' signal.",
                     interactive=True,
