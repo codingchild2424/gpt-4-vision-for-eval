@@ -162,7 +162,11 @@ def show_audio_transcript(video_file, api_key):
 
 def change_audio_rubric(choice):
     if choice == "Video only":
-        return gr.Textbox(visible=False)
+        return gr.Textbox(
+            placeholder="(Deprecated)",
+            interactive=False,
+            visible=False
+        )
     else:
         return gr.Textbox(
                     label="3. Audio Evaluation Rubric (if needed)",
@@ -175,7 +179,11 @@ def change_audio_rubric(choice):
 
 def change_audio_eval(choice):
     if choice == "Video only":
-        return gr.Textbox(visible=False)
+        return gr.Textbox(
+            visible=False,
+            placeholder="(Deprecated)",
+            interactive=False,
+        )
     else:
         return gr.Textbox(
                     label="Audio Script Eval...",
