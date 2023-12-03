@@ -4,7 +4,7 @@ emoji: 📚
 colorFrom: blue
 colorTo: purple
 sdk: gradio
-sdk_version: 3.40.1
+sdk_version: 4.5.0
 app_file: src/obs_eval_gradio.py
 pinned: false
 license: openrail
