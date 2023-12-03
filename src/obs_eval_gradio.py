@@ -377,8 +377,9 @@ def main():
                 )
                 transcript_box = gr.Textbox(
                     label="Audio Transcript",
+                    info="(You can EDIT by yourself)",
                     lines=8,
-                    interactive=False
+                    interactive=True,
                 )
         
         gr.Markdown("## 2nd STEP. Set Evaluation Rubric")
