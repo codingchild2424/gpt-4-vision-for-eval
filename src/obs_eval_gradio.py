@@ -160,35 +160,35 @@ def show_audio_transcript(video_file, api_key):
         return transcript
 
 
-# def change_audio_rubric(choice):
-#     print(choice)
-#     if choice == "Video only":
-#         return gr.Textbox(
-#             visible=False
-#         )
-#     else:
-#         return gr.Textbox(
-#                     label="3. Audio Evaluation Rubric (if needed)",
-#                     info="Enter your evaluation rubric here...",
-#                     placeholder="<RUBRIC>\nHere's what the performer should *SAY* as follows:\n1. From standing, you need to shout 'Start' signal.\n2. Rock forward, you shouldn't make any noise while rolling.\n3. Standing still again, you need to shout 'Finish' signal.",
-#                     lines=7,
-#                     interactive=True,
-#                     visible=True)
+def change_audio_rubric(choice):
+    print(choice)
+    if choice == "Video only":
+        return gr.Textbox(
+            visible=False
+        )
+    else:
+        return gr.Textbox(
+                    label="3. Audio Evaluation Rubric (if needed)",
+                    info="Enter your evaluation rubric here...",
+                    placeholder="<RUBRIC>\nHere's what the performer should *SAY* as follows:\n1. From standing, you need to shout 'Start' signal.\n2. Rock forward, you shouldn't make any noise while rolling.\n3. Standing still again, you need to shout 'Finish' signal.",
+                    lines=7,
+                    interactive=True,
+                    visible=True)
 
 
-# def change_audio_eval(choice):
-#     print(choice)
-#     if choice == "Video only":
-#         return gr.Textbox(
-#             visible=False,
-#         )
-#     else:
-#         return gr.Textbox(
-#                     label="Audio Script Eval...",
-#                     lines=10,
-#                     interactive=False,
-#                     visible=True
-#                 )
+def change_audio_eval(choice):
+    print(choice)
+    if choice == "Video only":
+        return gr.Textbox(
+            visible=False,
+        )
+    else:
+        return gr.Textbox(
+                    label="Audio Script Eval...",
+                    lines=10,
+                    interactive=False,
+                    visible=True
+                )
 
 
 def call_gpt_vision(api_key, rubrics, progress=gr.Progress()) -> list:
@@ -369,7 +369,7 @@ def main():
                     columns=[5],
                     rows=[2],
                     object_fit="contain",
-                    height="auto"
+                    height="auto",
                 )
                 transcript_box = gr.Textbox(
                     label="Audio Transcript",
@@ -380,12 +380,12 @@ def main():
         gr.Markdown("## 2nd STEP. Set Evaluation Rubric")
         with gr.Row():
             with gr.Column(scale=1):
-                # multimodal_radio = gr.Radio(
-                #     label="1. Multimodal Selection",
-                #     info="Choose evaluation channel",
-                #     value="Video + Audio",
-                #     choices=["Video + Audio", "Video only"]
-                # )
+                multimodal_radio = gr.Radio(
+                    label="1. Multimodal Selection",
+                    info="Choose evaluation channel",
+                    value="Video + Audio",
+                    choices=["Video + Audio", "Video only"]
+                )
                 rubric_video_input = gr.Textbox(
                     label="Video Evaluation Rubric",
                     info="Enter your evaluation rubric here...",
@@ -399,7 +399,7 @@ def main():
                     interactive=True,
                     visible=True,
                     lines=7
-                )
+                )            
                 evaluate_button = gr.Button("Evaluate")
             with gr.Column(scale=1):
                 video_output_box = gr.Textbox(
@@ -429,11 +429,11 @@ def main():
             with gr.Column(scale=1):
                 output_box_fin_fin = gr.Textbox(label="Final Evaluation", lines=10, interactive=True)
 
-        # multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
-        # multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
+        multimodal_radio.change(fn=change_audio_rubric, inputs=multimodal_radio, outputs=rubric_audio_input)
+        multimodal_radio.change(fn=change_audio_eval, inputs=multimodal_radio, outputs=audio_output_box)
 
         process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery).success(fn=show_audio_transcript, inputs=[video_upload, api_key_input], outputs=transcript_box)  
-        if rubric_audio_input:
+        if multimodal_radio.value == "Video + Audio":
             evaluate_button.click(fn=call_gpt_vision, inputs=[api_key_input, rubric_video_input], outputs=video_output_box).then(fn=call_gpt_audio, inputs=[api_key_input, rubric_audio_input], outputs=audio_output_box).then(get_full_result, None, output_box_fin)
         else:
             evaluate_button.click(fn=call_gpt_vision, inputs=[api_key_input, rubric_video_input], outputs=video_output_box).then(get_full_result, None, output_box_fin)
