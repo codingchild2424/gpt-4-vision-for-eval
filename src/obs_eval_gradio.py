@@ -361,6 +361,7 @@ def main():
                 gallery = gr.Gallery(
                     label="Batched Snapshots of Video",
                     columns=[5],
+                    rows=[2],
                     object_fit="contain",
                     height="auto"
                 )
@@ -428,7 +429,7 @@ def main():
 
 
         process_button.click(fn=validate_api_key, inputs=api_key_input, outputs=None).success(fn=show_batches, inputs=[video_upload, batch_size, total_batch_percent], outputs=gallery).success(fn=show_audio_transcript, inputs=[video_upload, api_key_input], outputs=transcript_box)  
-        if rubric_audio_input.visible:
+        if multimodal_radio.value == 'Video + Audio':
             evaluate_button.click(fn=call_gpt_vision, inputs=[api_key_input, rubric_video_input], outputs=video_output_box).then(fn=call_gpt_audio, inputs=[api_key_input, rubric_audio_input], outputs=audio_output_box).then(get_full_result, None, output_box_fin)
         else:
             evaluate_button.click(fn=call_gpt_vision, inputs=[api_key_input, rubric_video_input], outputs=video_output_box).then(get_full_result, None, output_box_fin)
