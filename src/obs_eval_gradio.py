@@ -161,7 +161,8 @@ def show_audio_transcript(video_file, api_key):
 
 
 def change_audio_rubric(choice):
-    if choice.value == "Video + Audio":
+    print(choice)
+    if choice == "Video only":
         return gr.Textbox(
             visible=False
         )
@@ -176,7 +177,8 @@ def change_audio_rubric(choice):
 
 
 def change_audio_eval(choice):
-    if choice.value == "Video only":
+    print(choice)
+    if choice == "Video only":
         return gr.Textbox(
             visible=False,
         )
