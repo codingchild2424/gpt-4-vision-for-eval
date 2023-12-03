@@ -250,36 +250,40 @@ def call_gpt_audio(api_key, rubrics) -> str:
 
     full_text_audio = ""
 
-    PROMPT_MESSAGES = [
-        {
-            "role": "system",
-            "content": AUDIO_SYSTEM_PROMPT,
-        },
-        {
-            "role": "user",
-            "content": PromptTemplate.from_template(USER_PROMPT_TEMPLATE).format(rubrics=rubrics) + "\n\n<TEXT>\n" + transcript
-        },
-    ]
-    params = {
-        "model": "gpt-4",
-        "messages": PROMPT_MESSAGES,
-        "max_tokens": 1024,
-    }
-
-    try:
-        result = openai.chat.completions.create(**params)
-        full_text_audio = result.choices[0].message.content
-        print(full_text_audio)
-    except openai.OpenAIError as e:
-        print(f"Failed to connect to OpenAI: {e}")
-        pass
-
-    if 'full_text_audio' not in global_dict:
-        global_dict.setdefault('full_text_audio', full_text_audio)
+    print(f"RUBRIC_AUDIO: {rubrics}")
+    if not rubrics:
+        return full_text_audio
     else:
-        global_dict['full_text_audio'] = full_text_audio
+        PROMPT_MESSAGES = [
+            {
+                "role": "system",
+                "content": AUDIO_SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": PromptTemplate.from_template(USER_PROMPT_TEMPLATE).format(rubrics=rubrics) + "\n\n<TEXT>\n" + transcript
+            },
+        ]
+        params = {
+            "model": "gpt-4",
+            "messages": PROMPT_MESSAGES,
+            "max_tokens": 1024,
+        }
 
-    return full_text_audio
+        try:
+            result = openai.chat.completions.create(**params)
+            full_text_audio = result.choices[0].message.content
+            print(full_text_audio)
+        except openai.OpenAIError as e:
+            print(f"Failed to connect to OpenAI: {e}")
+            pass
+
+        if 'full_text_audio' not in global_dict:
+            global_dict.setdefault('full_text_audio', full_text_audio)
+        else:
+            global_dict['full_text_audio'] = full_text_audio
+
+        return full_text_audio
 
 
 def get_full_result():
